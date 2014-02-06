@@ -47,7 +47,7 @@ That works???
 
 Oh yes! Check it out. You need:
 
- * A current C++11 compiler (clang-3.2 and g++-4.8 are known to work on Ubuntu)
+ * A current C++11 compiler (clang-3.2 is known to work on Ubuntu, g++4.8 is missing std::copy_if)
  * sqlpp11: https://github.com/rbock/sqlpp11
  * And this library, of course
  
