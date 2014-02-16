@@ -55,12 +55,12 @@ namespace sqlpp
 	}
 	namespace vendor
 	{
-		template<typename Container, typename... Args>
-			struct interpreter_t<::sqlpp::container::context_t<Container>, column_t<Args...>>
+		template<typename... Args>
+			struct interpreter_t<::sqlpp::container::context_t, column_t<Args...>>
 			{
 				using T = column_t<Args...>;
 
-				static ::sqlpp::container::column_t<T> _(const T& t, ::sqlpp::container::context_t<Container>& context)
+				static ::sqlpp::container::column_t<T> _(const T& t, ::sqlpp::container::context_t& context)
 				{
 					return { t };
 				}

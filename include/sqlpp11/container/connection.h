@@ -88,14 +88,13 @@ namespace sqlpp
 				};
 		}
 
-		template<typename Container>
-			struct context_t
-			{
-				using is_container_context = std::true_type;
+		struct context_t
+		{
+			using is_container_context = std::true_type;
 
-				context_t()
-				{}
-			};
+			context_t()
+			{}
+		};
 
 		template<typename Container>
 			class connection: public sqlpp::connection
@@ -105,7 +104,7 @@ namespace sqlpp
 			using _result_row_t = std::reference_wrapper<_row_t>;
 
 		public:
-			using _context_t = context_t<Container>;
+			using _context_t = context_t;
 			using _result_t = std::vector<_result_row_t>;
 
 			connection(Container data): _data(data) {}
@@ -148,7 +147,7 @@ namespace sqlpp
 
 			//! call run on the argument
 			template<typename T>
-				auto run(const T& t) -> decltype(detail::command_runner<connection, T>::run(*this, t))
+				auto operator()(const T& t) -> decltype(detail::command_runner<connection, T>::run(*this, t))
 				{
 					return detail::command_runner<connection, T>::run(*this, t);
 				}

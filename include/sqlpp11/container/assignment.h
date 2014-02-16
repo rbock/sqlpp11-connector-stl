@@ -56,12 +56,12 @@ namespace sqlpp
 
 	namespace vendor
 	{
-		template<typename Container, typename Lhs, typename Rhs>
-			struct interpreter_t<::sqlpp::container::context_t<Container>, assignment_t<Lhs, Rhs>>
+		template<typename Lhs, typename Rhs>
+			struct interpreter_t<::sqlpp::container::context_t, assignment_t<Lhs, Rhs>>
 			{
 				using T = assignment_t<Lhs, Rhs>;
 
-				static auto _(const T& t, ::sqlpp::container::context_t<Container>& context)
+				static auto _(const T& t, ::sqlpp::container::context_t& context)
 					-> ::sqlpp::container::assignment_t<decltype(interpret(t._lhs, context)), decltype(interpret(t._rhs, context))>
 				{
 					return { interpret(t._lhs, context), interpret(t._rhs, context) };

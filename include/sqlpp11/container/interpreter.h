@@ -58,12 +58,12 @@ namespace sqlpp
 					}
 			};
 
-		template<typename Container, typename Database, typename Table, typename InsertList, typename ColumnList, typename ValueList>
-			struct interpreter_t<::sqlpp::container::context_t<Container>, sqlpp::insert_t<Database, Table,  InsertList, ColumnList, ValueList>>
+		template<typename Database, typename Table, typename InsertValueList>
+			struct interpreter_t<::sqlpp::container::context_t, sqlpp::insert_t<Database, Table,  InsertValueList>>
 			{
-				using Context = ::sqlpp::container::context_t<Container>;
-				using T = sqlpp::insert_t<Database, Table, InsertList, ColumnList, ValueList>;
-				using _assignment_tuple = typename InsertList::_parameter_tuple_t;
+				using Context = ::sqlpp::container::context_t;
+				using T = sqlpp::insert_t<Database, Table, InsertValueList>;
+				using _assignment_tuple = typename InsertValueList::_parameter_tuple_t;
 
 				template<typename Assignment>
 				struct converter
@@ -71,10 +71,10 @@ namespace sqlpp
 					using type = decltype(interpret(std::declval<T>(), std::declval<Context>()));
 				};
 
-				static auto _(const T& t, ::sqlpp::container::context_t<Container>& context)
-					-> ::sqlpp::container::insert_t<decltype(tuple_interpreter<_assignment_tuple, ::sqlpp::container::context_t<Container>, 0, std::tuple_size<_assignment_tuple>::value>::_interpret(t._insert_list._assignments, context))>
+				static auto _(const T& t, ::sqlpp::container::context_t& context)
+					-> ::sqlpp::container::insert_t<decltype(tuple_interpreter<_assignment_tuple, ::sqlpp::container::context_t, 0, std::tuple_size<_assignment_tuple>::value>::_interpret(t._insert_value_list._assignments, context))>
 				{
-					 return { tuple_interpreter<_assignment_tuple, ::sqlpp::container::context_t<Container>, 0, std::tuple_size<_assignment_tuple>::value>::_interpret(t._insert_list._assignments, context) } ;
+					 return { tuple_interpreter<_assignment_tuple, ::sqlpp::container::context_t, 0, std::tuple_size<_assignment_tuple>::value>::_interpret(t._insert_value_list._assignments, context) } ;
 				}
 
 			private:
@@ -93,7 +93,7 @@ namespace sqlpp
       typename Limit,
       typename Offset
         >
-        struct interpreter_t<::sqlpp::container::context_t<Container>, select_t<Database,
+        struct interpreter_t<::sqlpp::container::context_t, select_t<Database,
       FlagList,
       ColumnList,
       From,
@@ -115,9 +115,9 @@ namespace sqlpp
         Limit,
         Offset>;
 
-				using condition_t = decltype(interpret(std::declval<WhereCondition>(), std::declval<::sqlpp::container::context_t<Container>>()));
+				using condition_t = decltype(interpret(std::declval<WhereCondition>(), std::declval<::sqlpp::container::context_t>()));
 
-				static ::sqlpp::container::select_t<Container, WhereCondition> _(const T& t, ::sqlpp::container::context_t<Container>& context)
+				static ::sqlpp::container::select_t<Container, WhereCondition> _(const T& t, ::sqlpp::container::context_t& context)
 				{
 					return { t };
 				}

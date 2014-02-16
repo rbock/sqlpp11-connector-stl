@@ -39,7 +39,7 @@ namespace sqlpp
 				};
 
 			template<>
-				struct operator_map<sqlpp::vendor::tag::less_than>
+				struct operator_map<sqlpp::vendor::tag::less>
 				{
 					template<typename T>
 						using operator_t = std::less<T>;
@@ -54,6 +54,20 @@ namespace sqlpp
 				};
 
 			template<>
+				struct operator_map<sqlpp::vendor::tag::equal_to>
+				{
+					template<typename T>
+						using operator_t = std::equal_to<T>;
+				};
+
+			template<>
+				struct operator_map<sqlpp::vendor::tag::not_equal_to>
+				{
+					template<typename T>
+						using operator_t = std::not_equal_to<T>;
+				};
+
+			template<>
 				struct operator_map<sqlpp::vendor::tag::greater_equal>
 				{
 					template<typename T>
@@ -61,7 +75,7 @@ namespace sqlpp
 				};
 
 			template<>
-				struct operator_map<sqlpp::vendor::tag::greater_than>
+				struct operator_map<sqlpp::vendor::tag::greater>
 				{
 					template<typename T>
 						using operator_t = std::greater<T>;
@@ -148,13 +162,49 @@ namespace sqlpp
 
 	namespace vendor
 	{
-		template<typename Container, typename Lhs, typename O, typename Rhs>
-			struct interpreter_t<::sqlpp::container::context_t<Container>, binary_expression_t<Lhs, O, Rhs>>
+		template<typename Lhs, typename O, typename Rhs>
+			struct interpreter_t<::sqlpp::container::context_t, binary_expression_t<Lhs, O, Rhs>>
 			{
 				using T = binary_expression_t<Lhs, O, Rhs>;
 
-				static auto _(const T& t, ::sqlpp::container::context_t<Container>& context)
+				static auto _(const T& t, ::sqlpp::container::context_t& context)
 					-> ::sqlpp::container::binary_expression_t<decltype(interpret(t._lhs, context)), O, decltype(interpret(t._rhs, context))>
+				{
+					return { interpret(t._lhs, context), interpret(t._rhs, context) };
+				}
+			};
+
+		template<typename Operand>
+			struct interpreter_t<::sqlpp::container::context_t, tvin_wrap_t<Operand>>
+			{
+				using T = tvin_wrap_t<Operand>;
+
+				static auto _(const T& t, ::sqlpp::container::context_t& context)
+					-> decltype(interpret(t._value, context))
+				{
+					// FIXME: need to assert, that Operand is not tvin!
+					return interpret(t._value, context);
+				}
+			};
+		template<typename Lhs, typename Rhs>
+			struct interpreter_t<::sqlpp::container::context_t, binary_expression_t<Lhs, tag::equal_to, Rhs>>
+			{
+				using T = binary_expression_t<Lhs, tag::equal_to, Rhs>;
+
+				static auto _(const T& t, ::sqlpp::container::context_t& context)
+					-> ::sqlpp::container::binary_expression_t<decltype(interpret(t._lhs, context)), tag::equal_to, decltype(interpret(t._rhs, context))>
+				{
+					return { interpret(t._lhs, context), interpret(t._rhs, context) };
+				}
+			};
+
+		template<typename Lhs, typename Rhs>
+			struct interpreter_t<::sqlpp::container::context_t, not_equal_to_t<Lhs, Rhs>>
+			{
+				using T = binary_expression_t<Lhs, tag::not_equal_to, Rhs>;
+
+				static auto _(const T& t, ::sqlpp::container::context_t& context)
+					-> ::sqlpp::container::binary_expression_t<decltype(interpret(t._lhs, context)), tag::not_equal_to, decltype(interpret(t._rhs, context))>
 				{
 					return { interpret(t._lhs, context), interpret(t._rhs, context) };
 				}
