@@ -186,30 +186,6 @@ namespace sqlpp
 					return interpret(t._value, context);
 				}
 			};
-		template<typename Lhs, typename Rhs>
-			struct interpreter_t<::sqlpp::container::context_t, binary_expression_t<Lhs, tag::equal_to, Rhs>>
-			{
-				using T = binary_expression_t<Lhs, tag::equal_to, Rhs>;
-
-				static auto _(const T& t, ::sqlpp::container::context_t& context)
-					-> ::sqlpp::container::binary_expression_t<decltype(interpret(t._lhs, context)), tag::equal_to, decltype(interpret(t._rhs, context))>
-				{
-					return { interpret(t._lhs, context), interpret(t._rhs, context) };
-				}
-			};
-
-		template<typename Lhs, typename Rhs>
-			struct interpreter_t<::sqlpp::container::context_t, not_equal_to_t<Lhs, Rhs>>
-			{
-				using T = binary_expression_t<Lhs, tag::not_equal_to, Rhs>;
-
-				static auto _(const T& t, ::sqlpp::container::context_t& context)
-					-> ::sqlpp::container::binary_expression_t<decltype(interpret(t._lhs, context)), tag::not_equal_to, decltype(interpret(t._rhs, context))>
-				{
-					return { interpret(t._lhs, context), interpret(t._rhs, context) };
-				}
-			};
-
 	}
 }
 

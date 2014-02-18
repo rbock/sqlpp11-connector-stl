@@ -65,12 +65,6 @@ namespace sqlpp
 				using T = sqlpp::insert_t<Database, Table, InsertValueList>;
 				using _assignment_tuple = typename InsertValueList::_parameter_tuple_t;
 
-				template<typename Assignment>
-				struct converter
-				{
-					using type = decltype(interpret(std::declval<T>(), std::declval<Context>()));
-				};
-
 				static auto _(const T& t, ::sqlpp::container::context_t& context)
 					-> ::sqlpp::container::insert_t<decltype(tuple_interpreter<_assignment_tuple, ::sqlpp::container::context_t, 0, std::tuple_size<_assignment_tuple>::value>::_interpret(t._insert_value_list._assignments, context))>
 				{
@@ -79,50 +73,6 @@ namespace sqlpp
 
 			private:
 			};
-
-		/*
-    template<typename Container,
-      typename Database,
-      typename FlagList,
-      typename ColumnList,
-      typename From,
-      typename WhereCondition,
-      typename GroupBy,
-      typename Having,
-      typename OrderBy,
-      typename Limit,
-      typename Offset
-        >
-        struct interpreter_t<::sqlpp::container::context_t, select_t<Database,
-      FlagList,
-      ColumnList,
-      From,
-      ::sqlpp::vendor::where_t<Database, WhereCondition>,
-      GroupBy,
-      Having,
-      OrderBy,
-      Limit,
-      Offset>>
-      {
-        using T = select_t<Database,
-        FlagList,
-        ColumnList,
-        From,
-        ::sqlpp::vendor::where_t<Database, WhereCondition>,
-        GroupBy,
-        Having,
-        OrderBy,
-        Limit,
-        Offset>;
-
-				using condition_t = decltype(interpret(std::declval<WhereCondition>(), std::declval<::sqlpp::container::context_t>()));
-
-				static ::sqlpp::container::select_t<Container, WhereCondition> _(const T& t, ::sqlpp::container::context_t& context)
-				{
-					return { t };
-				}
-			};
-			*/
 
 	}
 }
