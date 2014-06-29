@@ -48,38 +48,11 @@ namespace sqlpp
 
 			template<typename Connection,
 				typename Database,
-				typename FlagList,
-				typename ColumnList,
-				typename From,
-				typename Where,
-				typename GroupBy,
-				typename Having,
-				typename OrderBy,
-				typename Limit,
-				typename Offset
+				typename... Args
 					>
-					struct command_runner<Connection, select_t<Database,
-				FlagList,
-				ColumnList,
-				From,
-				Where,
-				GroupBy,
-				Having,
-				OrderBy,
-				Limit,
-				Offset>>
+					struct command_runner<Connection, statement_t<Database, select_t, Args...>>
 				{
-					using Select = select_t<Database,
-					FlagList,
-					ColumnList,
-					From,
-					Where,
-					GroupBy,
-					Having,
-					OrderBy,
-					Limit,
-					Offset>;
-
+					using Select = statement_t<Database,select_t, Args...>;
 
 					static auto run(Connection& db, const Select& select) -> decltype(db.select(select))
 					{
@@ -124,7 +97,7 @@ namespace sqlpp
 				-> _result_t
 				{
 					_context_t context;
-					auto condition = interpret(std::get<0>(s._where._expressions), context);
+					auto condition = interpret(std::get<0>(s.where._data._expressions), context);
 
 					_result_t result;
 

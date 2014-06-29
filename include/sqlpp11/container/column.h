@@ -36,7 +36,7 @@ namespace sqlpp
 				static_assert(::sqlpp::is_column_t<Column>::value, "Invalid argument for column_t");
 
 				using _column_spec_t = typename Column::_spec_t;
-				using _cpp_value_type = typename Column::_value_type::_cpp_value_type;
+				using _cpp_value_type = typename value_type_of<Column>::_cpp_value_type;
 
 				column_t(const Column&)
 				{}
@@ -53,20 +53,17 @@ namespace sqlpp
 				}
 			};
 	}
-	namespace vendor
-	{
-		template<typename... Args>
-			struct interpreter_t<::sqlpp::container::context_t, column_t<Args...>>
+
+	template<typename... Args>
+		struct interpreter_t<::sqlpp::container::context_t, column_t<Args...>>
+		{
+			using T = column_t<Args...>;
+
+			static ::sqlpp::container::column_t<T> _(const T& t, ::sqlpp::container::context_t& context)
 			{
-				using T = column_t<Args...>;
-
-				static ::sqlpp::container::column_t<T> _(const T& t, ::sqlpp::container::context_t& context)
-				{
-					return { t };
-				}
-			};
-
-	}
+				return { t };
+			}
+		};
 }
 
 #endif

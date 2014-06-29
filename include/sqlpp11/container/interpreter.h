@@ -36,8 +36,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 	template<typename Tuple, typename Context, size_t i, size_t N>
 			struct tuple_interpreter
 			{
@@ -59,22 +57,21 @@ namespace sqlpp
 			};
 
 		template<typename Database, typename Table, typename InsertValueList>
-			struct interpreter_t<::sqlpp::container::context_t, sqlpp::insert_t<Database, Table,  InsertValueList>>
+			struct interpreter_t<::sqlpp::container::context_t, sqlpp::statement_t<Database, insert_t, Table,  InsertValueList>>
 			{
 				using Context = ::sqlpp::container::context_t;
-				using T = sqlpp::insert_t<Database, Table, InsertValueList>;
-				using _assignment_tuple = typename InsertValueList::_parameter_tuple_t;
+				using T = sqlpp::statement_t<Database, insert_t, Table, InsertValueList>;
+				using _assignment_tuple = typename InsertValueList::_data_t::_assignment_tuple;
 
 				static auto _(const T& t, ::sqlpp::container::context_t& context)
-					-> ::sqlpp::container::insert_t<decltype(tuple_interpreter<_assignment_tuple, ::sqlpp::container::context_t, 0, std::tuple_size<_assignment_tuple>::value>::_interpret(t._insert_value_list._assignments, context))>
+					-> ::sqlpp::container::insert_t<decltype(tuple_interpreter<_assignment_tuple, ::sqlpp::container::context_t, 0, std::tuple_size<_assignment_tuple>::value>::_interpret(t.insert_list._data._assignments, context))>
 				{
-					 return { tuple_interpreter<_assignment_tuple, ::sqlpp::container::context_t, 0, std::tuple_size<_assignment_tuple>::value>::_interpret(t._insert_value_list._assignments, context) } ;
+					 return { tuple_interpreter<_assignment_tuple, ::sqlpp::container::context_t, 0, std::tuple_size<_assignment_tuple>::value>::_interpret(t.insert_list._data._assignments, context) } ;
 				}
 
 			private:
 			};
 
-	}
 }
 
 #endif

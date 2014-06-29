@@ -33,7 +33,7 @@ namespace sqlpp
 		template<typename T>
 			struct insert_t
 			{
-				static_assert(::sqlpp::vendor::wrong_t<T>::value, "invalid argument for index_t");
+				static_assert(::sqlpp::wrong_t<T>::value, "invalid argument for index_t");
 			};
 
 		template<typename... Assignments>
