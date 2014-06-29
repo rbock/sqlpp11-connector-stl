@@ -36,41 +36,32 @@
 
 namespace sqlpp
 {
-	template<typename Tuple, typename Context, size_t i, size_t N>
-			struct tuple_interpreter
+	namespace container
+	{
+		template<typename... T, size_t... Idx, typename Context>
+			auto interpret_tuple(const std::tuple<T...>& tup, const sqlpp::detail::index_sequence<Idx...>&, Context& context)
+			-> std::tuple<decltype(interpret(std::get<Idx>(tup), context))...>
 			{
-				static auto _interpret(const Tuple& tup, Context& context)
-					-> decltype(std::tuple_cat(std::make_tuple(interpret(std::get<i>(tup), context)), tuple_interpreter<Tuple, Context, i + 1, N>::_interpret(tup, context)))
-					{
-						return  std::tuple_cat(std::make_tuple(interpret(std::get<i>(tup), context)), tuple_interpreter<Tuple, Context, i + 1, N>::_interpret(tup, context));
-					}
-			};
+				return {interpret(std::get<Idx>(tup), context)...};
+			}
+	}
 
-		template<typename Tuple, typename Context, size_t N>
-			struct tuple_interpreter<Tuple, Context, N, N>
-			{
-				static auto _interpret(const Tuple&, Context&)
-					-> std::tuple<>
-					{
-						return {};
-					}
-			};
+	template<typename Database, typename Table, typename InsertValueList>
+		struct interpreter_t<::sqlpp::container::context_t, sqlpp::statement_t<Database, insert_t, Table,  InsertValueList>>
+		{
+			using Context = ::sqlpp::container::context_t;
+			using T = sqlpp::statement_t<Database, insert_t, Table, InsertValueList>;
+			using _assignment_tuple = decltype(InsertValueList::_data_t::_assignments);
+			using _assignment_tuple_idx = sqlpp::detail::make_index_sequence<std::tuple_size<_assignment_tuple>::value>;
 
-		template<typename Database, typename Table, typename InsertValueList>
-			struct interpreter_t<::sqlpp::container::context_t, sqlpp::statement_t<Database, insert_t, Table,  InsertValueList>>
-			{
-				using Context = ::sqlpp::container::context_t;
-				using T = sqlpp::statement_t<Database, insert_t, Table, InsertValueList>;
-				using _assignment_tuple = typename InsertValueList::_data_t::_assignment_tuple;
-
-				static auto _(const T& t, ::sqlpp::container::context_t& context)
-					-> ::sqlpp::container::insert_t<decltype(tuple_interpreter<_assignment_tuple, ::sqlpp::container::context_t, 0, std::tuple_size<_assignment_tuple>::value>::_interpret(t.insert_list._data._assignments, context))>
+			static auto _(const T& t, ::sqlpp::container::context_t& context)
+				-> ::sqlpp::container::insert_t<decltype(container::interpret_tuple(t.insert_list._data._assignments, _assignment_tuple_idx(), context))>
 				{
-					 return { tuple_interpreter<_assignment_tuple, ::sqlpp::container::context_t, 0, std::tuple_size<_assignment_tuple>::value>::_interpret(t.insert_list._data._assignments, context) } ;
+					return { container::interpret_tuple(t.insert_list._data._assignments, _assignment_tuple_idx(), context) } ;
 				}
 
-			private:
-			};
+		private:
+		};
 
 }
 
