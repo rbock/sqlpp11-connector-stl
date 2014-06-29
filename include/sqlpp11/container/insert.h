@@ -26,39 +26,29 @@
 #ifndef SQLPP_CONTAINER_INSERT_H
 #define SQLPP_CONTAINER_INSERT_H
 
+#include <sqlpp11/detail/index_sequence.h>
+
 namespace sqlpp
 {
 	namespace container
 	{
-		template<typename T>
+		template<typename T, typename I>
 			struct insert_t
 			{
 				static_assert(::sqlpp::wrong_t<T>::value, "invalid argument for index_t");
 			};
 
-		template<typename... Assignments>
-			struct insert_t<std::tuple<Assignments...>>
+		template<typename... Assignments, std::size_t... Idx>
+			struct insert_t<std::tuple<Assignments...>, sqlpp::detail::index_sequence<Idx...>>
 			{
 				template<size_t> struct index {};
 
 				template<typename T>
 					void operator()(T& lhs)
 					{
-						_assign(lhs, index<0>());
+						using swallow = int[];
+						(void) swallow{(std::get<Idx>(_assignments)(lhs), 0)...};
 					}
-
-				template<typename T, size_t i>
-					void _assign(T& lhs, const index<i>&)
-					{
-						std::get<i>(_assignments)(lhs);
-						_assign(lhs, index<i+1>());
-					}
-
-				template<typename T>
-					void _assign(T& lhs, const index<sizeof...(Assignments)>&)
-					{
-					}
-
 
 				std::tuple<Assignments...> _assignments;
 			};

@@ -55,7 +55,8 @@ namespace sqlpp
 			using _assignment_tuple_idx = sqlpp::detail::make_index_sequence<std::tuple_size<_assignment_tuple>::value>;
 
 			static auto _(const T& t, ::sqlpp::container::context_t& context)
-				-> ::sqlpp::container::insert_t<decltype(container::interpret_tuple(t.insert_list._data._assignments, _assignment_tuple_idx(), context))>
+				-> ::sqlpp::container::insert_t<decltype(container::interpret_tuple(t.insert_list._data._assignments, _assignment_tuple_idx(), context)), 
+				                                _assignment_tuple_idx>
 				{
 					return { container::interpret_tuple(t.insert_list._data._assignments, _assignment_tuple_idx(), context) } ;
 				}
