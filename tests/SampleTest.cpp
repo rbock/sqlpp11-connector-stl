@@ -31,6 +31,7 @@
 #include <vector>
 
 namespace sql = sqlpp::container;
+constexpr TabSample tab{};
 
 struct sample
 {
@@ -44,15 +45,14 @@ int main()
 	using container = std::vector<sample>;
 	container data;
 
-	sql::connection<container> db(data);
-	TabSample tab;
+	sql::connection<container> db{data};
 
-	db.run(insert_into(tab).set(tab.alpha = 17));
-	db.run(insert_into(tab).set(tab.beta = "cheesecake"));
-	db.run(insert_into(tab).set(tab.alpha = 42, tab.beta = "hello", tab.gamma = true));
-	db.run(insert_into(tab).set(tab.gamma = true));
+	db(insert_into(tab).set(tab.alpha = 17));
+	db(insert_into(tab).set(tab.beta = "cheesecake"));
+	db(insert_into(tab).set(tab.alpha = 42, tab.beta = "hello", tab.gamma = true));
+	db(insert_into(tab).set(tab.gamma = true));
 
-	for (const sample& row: db.run(select(tab.alpha).from(tab).where(tab.alpha < 18)))
+	for (const sample& row: db(select(tab.alpha).from(tab).where(tab.alpha < 18 and tab.beta != "cheesecake")))
 	{
 		std::cerr << "alpha=" << row.alpha << ", beta=" << row.beta << ", gamma=" << row.gamma << std::endl;
 	}

@@ -35,11 +35,11 @@ namespace sqlpp
 			template<typename Operator>
 				struct operator_map
 				{
-					static_assert(::sqlpp::vendor::wrong_t<Operator>::value, "this operator is not implemented yet");
+					static_assert(::sqlpp::wrong_t<Operator>::value, "this operator is not implemented yet");
 				};
 
 			template<>
-				struct operator_map<sqlpp::vendor::tag::less_than>
+				struct operator_map<sqlpp::op::less>
 				{
 					template<typename T>
 						using operator_t = std::less<T>;
@@ -47,73 +47,87 @@ namespace sqlpp
 
 
 			template<>
-				struct operator_map<sqlpp::vendor::tag::less_equal>
+				struct operator_map<sqlpp::op::less_equal>
 				{
 					template<typename T>
 						using operator_t = std::less_equal<T>;
 				};
 
 			template<>
-				struct operator_map<sqlpp::vendor::tag::greater_equal>
+				struct operator_map<sqlpp::op::equal_to>
+				{
+					template<typename T>
+						using operator_t = std::equal_to<T>;
+				};
+
+			template<>
+				struct operator_map<sqlpp::op::not_equal_to>
+				{
+					template<typename T>
+						using operator_t = std::not_equal_to<T>;
+				};
+
+			template<>
+				struct operator_map<sqlpp::op::greater_equal>
 				{
 					template<typename T>
 						using operator_t = std::greater_equal<T>;
 				};
 
 			template<>
-				struct operator_map<sqlpp::vendor::tag::greater_than>
+				struct operator_map<sqlpp::op::greater>
 				{
 					template<typename T>
 						using operator_t = std::greater<T>;
 				};
 
 			template<>
-				struct operator_map<sqlpp::vendor::tag::logical_and>
+				struct operator_map<sqlpp::op::logical_and>
 				{
 					template<typename T>
 						using operator_t = std::logical_and<T>;
 				};
 
 			template<>
-				struct operator_map<sqlpp::vendor::tag::logical_or>
+				struct operator_map<sqlpp::op::logical_or>
 				{
 					template<typename T>
 						using operator_t = std::logical_or<T>;
 				};
 
 			template<typename ValueType>
-				struct operator_map<sqlpp::vendor::tag::plus<ValueType>>
+				struct operator_map<sqlpp::op::plus<ValueType>>
 				{
 					template<typename T>
 						using operator_t = std::plus<T>;
 				};
 
 			template<typename ValueType>
-				struct operator_map<sqlpp::vendor::tag::minus<ValueType>>
+				struct operator_map<sqlpp::op::minus<ValueType>>
 				{
 					template<typename T>
 						using operator_t = std::minus<T>;
 				};
 
 			template<typename ValueType>
-				struct operator_map<sqlpp::vendor::tag::multiplies<ValueType>>
+				struct operator_map<sqlpp::op::multiplies<ValueType>>
 				{
 					template<typename T>
 						using operator_t = std::multiplies<T>;
 				};
 
 			template<>
-				struct operator_map<sqlpp::vendor::tag::divides>
+				struct operator_map<sqlpp::op::divides>
 				{
 					template<typename T>
-						using operator_t = std::divides<typename sqlpp::vendor::tag::divides::_value_type::_cpp_value_type>;
+						using operator_t = std::divides<typename sqlpp::value_type_of<sqlpp::op::divides>::_cpp_value_type>;
 				};
 
 			template<>
-				struct operator_map<sqlpp::vendor::tag::modulus>
+				struct operator_map<sqlpp::op::modulus>
 				{
 					template<typename T>
-						using operator_t = std::modulus<typename sqlpp::vendor::tag::modulus::_value_type::_cpp_value_type>;
+						using operator_t = std::modulus<typename sqlpp::value_type_of<sqlpp::op::modulus>::_cpp_value_type>;
 				};
 
 		};
@@ -122,7 +136,7 @@ namespace sqlpp
 			struct binary_expression_t
 			{
 				using operator_t = typename detail::operator_map<Operator>::template operator_t<typename Lhs::_cpp_value_type>;
-				using _cpp_value_type = typename Operator::_value_type::_cpp_value_type;
+				using _cpp_value_type = typename value_type_of<Operator>::_cpp_value_type;
 
 				binary_expression_t(Lhs l, Rhs r):
 					_lhs(l),
@@ -146,21 +160,30 @@ namespace sqlpp
 			};
 	}
 
-	namespace vendor
-	{
-		template<typename Container, typename Lhs, typename O, typename Rhs>
-			struct interpreter_t<::sqlpp::container::context_t<Container>, binary_expression_t<Lhs, O, Rhs>>
-			{
-				using T = binary_expression_t<Lhs, O, Rhs>;
+	template<typename Lhs, typename O, typename Rhs>
+		struct interpreter_t<::sqlpp::container::context_t, binary_expression_t<Lhs, O, Rhs>>
+		{
+			using T = binary_expression_t<Lhs, O, Rhs>;
 
-				static auto _(const T& t, ::sqlpp::container::context_t<Container>& context)
-					-> ::sqlpp::container::binary_expression_t<decltype(interpret(t._lhs, context)), O, decltype(interpret(t._rhs, context))>
+			static auto _(const T& t, ::sqlpp::container::context_t& context)
+				-> ::sqlpp::container::binary_expression_t<decltype(interpret(t._lhs, context)), O, decltype(interpret(t._rhs, context))>
 				{
 					return { interpret(t._lhs, context), interpret(t._rhs, context) };
 				}
-			};
+		};
 
-	}
+	template<typename Operand>
+		struct interpreter_t<::sqlpp::container::context_t, maybe_tvin_t<Operand>>
+		{
+			using T = maybe_tvin_t<Operand>;
+
+			static auto _(const T& t, ::sqlpp::container::context_t& context)
+				-> decltype(interpret(t._value, context))
+				{
+					// FIXME: need to assert, that Operand is not tvin!
+					return interpret(t._value, context);
+				}
+		};
 }
 
 #endif

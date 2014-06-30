@@ -48,38 +48,11 @@ namespace sqlpp
 
 			template<typename Connection,
 				typename Database,
-				typename FlagList,
-				typename ColumnList,
-				typename From,
-				typename Where,
-				typename GroupBy,
-				typename Having,
-				typename OrderBy,
-				typename Limit,
-				typename Offset
+				typename... Args
 					>
-					struct command_runner<Connection, select_t<Database,
-				FlagList,
-				ColumnList,
-				From,
-				Where,
-				GroupBy,
-				Having,
-				OrderBy,
-				Limit,
-				Offset>>
+					struct command_runner<Connection, statement_t<Database, select_t, Args...>>
 				{
-					using Select = select_t<Database,
-					FlagList,
-					ColumnList,
-					From,
-					Where,
-					GroupBy,
-					Having,
-					OrderBy,
-					Limit,
-					Offset>;
-
+					using Select = statement_t<Database,select_t, Args...>;
 
 					static auto run(Connection& db, const Select& select) -> decltype(db.select(select))
 					{
@@ -88,14 +61,13 @@ namespace sqlpp
 				};
 		}
 
-		template<typename Container>
-			struct context_t
-			{
-				using is_container_context = std::true_type;
+		struct context_t
+		{
+			using is_container_context = std::true_type;
 
-				context_t()
-				{}
-			};
+			context_t()
+			{}
+		};
 
 		template<typename Container>
 			class connection: public sqlpp::connection
@@ -105,7 +77,7 @@ namespace sqlpp
 			using _result_row_t = std::reference_wrapper<_row_t>;
 
 		public:
-			using _context_t = context_t<Container>;
+			using _context_t = context_t;
 			using _result_t = std::vector<_result_row_t>;
 
 			connection(Container data): _data(data) {}
@@ -125,7 +97,7 @@ namespace sqlpp
 				-> _result_t
 				{
 					_context_t context;
-					auto condition = interpret(std::get<0>(s._where._expressions), context);
+					auto condition = interpret(std::get<0>(s.where._data._expressions), context);
 
 					_result_t result;
 
@@ -148,7 +120,7 @@ namespace sqlpp
 
 			//! call run on the argument
 			template<typename T>
-				auto run(const T& t) -> decltype(detail::command_runner<connection, T>::run(*this, t))
+				auto operator()(const T& t) -> decltype(detail::command_runner<connection, T>::run(*this, t))
 				{
 					return detail::command_runner<connection, T>::run(*this, t);
 				}

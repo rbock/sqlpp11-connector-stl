@@ -53,54 +53,50 @@ namespace sqlpp
 				_cpp_value_type _t;
 			};
 	}
-	namespace vendor
-	{
-		template<typename Container>
-			struct interpreter_t<::sqlpp::container::context_t<Container>, boolean_operand>
+
+	template<>
+		struct interpreter_t<::sqlpp::container::context_t, boolean_operand>
+		{
+			using T = boolean_operand;
+
+			static ::sqlpp::container::operand_t<T> _(const T& t, ::sqlpp::container::context_t& context)
 			{
-				using T = boolean_operand;
+				return { t };
+			}
+		};
 
-				static ::sqlpp::container::operand_t<T> _(const T& t, ::sqlpp::container::context_t<Container>& context)
-				{
-					return { t };
-				}
-			};
+	template<>
+		struct interpreter_t<::sqlpp::container::context_t, integral_operand>
+		{
+			using T = integral_operand;
 
-		template<typename Container, typename Type>
-			struct interpreter_t<::sqlpp::container::context_t<Container>, integral_operand<Type>>
+			static ::sqlpp::container::operand_t<T> _(const T& t, ::sqlpp::container::context_t& context)
 			{
-				using T = integral_operand<Type>;
+				return { t };
+			}
+		};
 
-				static ::sqlpp::container::operand_t<T> _(const T& t, ::sqlpp::container::context_t<Container>& context)
-				{
-					return { t };
-				}
-			};
+	template<>
+		struct interpreter_t<::sqlpp::container::context_t, floating_point_operand>
+		{
+			using T = floating_point_operand;
 
-		template<typename Container, typename Type>
-			struct interpreter_t<::sqlpp::container::context_t<Container>, floating_point_operand<Type>>
+			static ::sqlpp::container::operand_t<T> _(const T& t, ::sqlpp::container::context_t& context)
 			{
-				using T = floating_point_operand<Type>;
+				return { t };
+			}
+		};
 
-				static ::sqlpp::container::operand_t<T> _(const T& t, ::sqlpp::container::context_t<Container>& context)
-				{
-					return { t };
-				}
-			};
+	template<>
+		struct interpreter_t<::sqlpp::container::context_t, text_operand>
+		{
+			using T = text_operand;
 
-		template<typename Container>
-			struct interpreter_t<::sqlpp::container::context_t<Container>, text_operand>
+			static ::sqlpp::container::operand_t<T> _(const T& t, ::sqlpp::container::context_t& context)
 			{
-				using T = text_operand;
-
-				static ::sqlpp::container::operand_t<T> _(const T& t, ::sqlpp::container::context_t<Container>& context)
-				{
-					return { t };
-				}
-			};
-
-
-	}
+				return { t };
+			}
+		};
 }
 
 #endif
