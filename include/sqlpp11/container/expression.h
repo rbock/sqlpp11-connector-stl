@@ -173,9 +173,9 @@ namespace sqlpp
 		};
 
 	template<typename Operand>
-		struct interpreter_t<::sqlpp::container::context_t, maybe_tvin_t<Operand>>
+		struct interpreter_t<::sqlpp::container::context_t, tvin_t<Operand>>
 		{
-			using T = maybe_tvin_t<Operand>;
+			using T = tvin_t<Operand>;
 
 			static auto _(const T& t, ::sqlpp::container::context_t& context)
 				-> decltype(interpret(t._value, context))

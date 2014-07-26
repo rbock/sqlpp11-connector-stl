@@ -45,10 +45,7 @@ namespace TabSample_
 					const T& operator()() const { return alpha; }
 				};
 		};
-		using _value_type = sqlpp::bigint;
-		struct _column_type
-		{
-		};
+		using _traits = ::sqlpp::make_traits<::sqlpp::bigint>;
 
 		template<typename T>
 			struct accesssor_t
@@ -71,10 +68,7 @@ namespace TabSample_
 					const T& operator()() const { return beta; }
 				};
 		};
-		using _value_type = sqlpp::varchar;
-		struct _column_type
-		{
-		};
+		using _traits = ::sqlpp::make_traits<::sqlpp::varchar>;
 
 		template<typename T>
 			struct accesssor_t
@@ -97,10 +91,7 @@ namespace TabSample_
 					const T& operator()() const { return gamma; }
 				};
 		};
-		using _value_type = sqlpp::boolean;
-		struct _column_type
-		{
-		};
+		using _traits = ::sqlpp::make_traits<::sqlpp::boolean>;
 
 		template<typename T>
 			struct accesssor_t
