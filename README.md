@@ -23,7 +23,7 @@ int main()
 	container data;
 
 	sql::connection<container> db(data);
-	TabSample tab;
+	sample tab;
 
 	db.run(insert_into(tab).set(tab.alpha = 17));
 	db.run(insert_into(tab).set(tab.beta = "cheesecake"));
