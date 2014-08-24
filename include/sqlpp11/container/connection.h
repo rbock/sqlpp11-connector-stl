@@ -29,6 +29,7 @@
 #define SQLPP_CONTAINER_CONNECTION_H
 
 #include <string>
+#include <algorithm>
 #include <sqlpp11/connection.h>
 
 namespace sqlpp

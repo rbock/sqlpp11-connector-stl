@@ -64,6 +64,19 @@ namespace sqlpp
 		private:
 		};
 
+	template<typename Expr, bool TrivialValueIsNull>
+		struct interpreter_t<::sqlpp::container::context_t, rhs_wrap_t<Expr, TrivialValueIsNull>>
+		{
+			using T = rhs_wrap_t<Expr, TrivialValueIsNull>;
+
+			static auto _(const T& t, ::sqlpp::container::context_t& context)
+				-> decltype(interpret(t._expr, context))
+				{
+					return interpret(t._expr, context);
+				}
+		};
+
+
 }
 
 #endif
