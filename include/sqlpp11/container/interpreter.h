@@ -32,6 +32,8 @@
 #include <sqlpp11/container/assignment.h>
 #include <sqlpp11/container/expression.h>
 #include <sqlpp11/container/insert.h>
+#include <sqlpp11/container/order_by.h>
+#include <sqlpp11/container/sort_order.h>
 #include <sqlpp11/container/select.h>
 
 namespace sqlpp
@@ -61,6 +63,22 @@ namespace sqlpp
 					return { container::interpret_tuple(t.insert_list._data._assignments, _assignment_tuple_idx(), context) } ;
 				}
 
+		private:
+		};
+
+	template<typename Database, typename... Expressions>
+		struct interpreter_t<::sqlpp::container::context_t, sqlpp::order_by_data_t<Database, Expressions...>>
+		{
+			using Context = ::sqlpp::container::context_t;
+			using T = sqlpp::order_by_data_t<Database, Expressions...>;
+			using _expression_tuple = decltype(T::_expressions);
+			using _expression_tuple_idx = sqlpp::detail::make_index_sequence<std::tuple_size<_expression_tuple>::value>;
+
+			static auto _(const T& t, ::sqlpp::container::context_t& context)
+				-> ::sqlpp::container::order_by_data_t<decltype(container::interpret_tuple(t._expressions, _expression_tuple_idx(), context))>
+				{
+					return { container::interpret_tuple(t._expressions, _expression_tuple_idx(), context) } ;
+				}
 		private:
 		};
 

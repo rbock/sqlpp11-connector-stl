@@ -103,6 +103,10 @@ namespace sqlpp
 					_result_t result;
 
 					std::copy_if(_data.begin(), _data.end(), std::back_inserter(result), condition);
+
+					auto less = interpret(s.order_by._data, context);
+					std::sort(result.begin(), result.end(), less);
+
 					return result;
 				}
 

@@ -52,7 +52,7 @@ int main()
 	db(insert_into(tab).set(tab.alpha = 42, tab.beta = "hello", tab.gamma = true));
 	db(insert_into(tab).set(tab.gamma = true));
 
-	for (const sample& row: db(select(tab.alpha).from(tab).where(tab.alpha < 18 and tab.beta != "cheesecake")))
+	for (const sample& row: db(select(tab.alpha).from(tab).where(tab.alpha < 18 and tab.beta != "cheesecake").order_by(tab.alpha.desc())))
 	{
 		std::cerr << "alpha=" << row.alpha << ", beta=" << row.beta << ", gamma=" << row.gamma << std::endl;
 	}
