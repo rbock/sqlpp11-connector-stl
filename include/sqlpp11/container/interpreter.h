@@ -42,7 +42,7 @@ namespace sqlpp
 			auto interpret_tuple(const std::tuple<T...>& tup, const sqlpp::detail::index_sequence<Idx...>&, Context& context)
 			-> std::tuple<decltype(interpret(std::get<Idx>(tup), context))...>
 			{
-				return {interpret(std::get<Idx>(tup), context)...};
+				return std::make_tuple(interpret(std::get<Idx>(tup), context)...);
 			}
 	}
 
