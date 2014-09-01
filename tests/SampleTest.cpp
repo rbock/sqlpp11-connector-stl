@@ -43,9 +43,7 @@ struct sample
 int main()
 {
 	using container = std::vector<sample>;
-	container data;
-
-	sql::connection<container> db{data};
+	sql::connection<container> db{{}};
 
 	db(insert_into(tab).set(tab.alpha = 17));
 	db(insert_into(tab).set(tab.beta = "cheesecake"));

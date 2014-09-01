@@ -117,7 +117,7 @@ namespace sqlpp
 				{
 					_context_t context;
 					auto assign = interpret(i, context);
-					_row_t v = {};
+					_row_t v{};
 					assign(v);
 					_data.push_back(v);
 					return 0;
