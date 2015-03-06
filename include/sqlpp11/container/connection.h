@@ -49,11 +49,12 @@ namespace sqlpp
 
 			template<typename Connection,
 				typename Database,
+				typename With,
 				typename... Args
 					>
-					struct command_runner<Connection, statement_t<Database, select_t, Args...>>
+					struct command_runner<Connection, statement_t<Database, With, select_t, Args...>>
 				{
-					using Select = statement_t<Database,select_t, Args...>;
+					using Select = statement_t<Database,With, select_t, Args...>;
 
 					static auto run(Connection& db, const Select& select) -> decltype(db.select(select))
 					{
