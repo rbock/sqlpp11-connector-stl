@@ -23,8 +23,8 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_CONTAINER_INSERT_H
-#define SQLPP_CONTAINER_INSERT_H
+#ifndef SQLPP_CONTAINER_SORT_ORDER_H
+#define SQLPP_CONTAINER_SORT_ORDER_H
 
 #include <sqlpp11/detail/index_sequence.h>
 
@@ -32,27 +32,34 @@ namespace sqlpp
 {
 	namespace container
 	{
-		template<typename T, typename I>
-			struct insert_t
+		template<typename Expression, sort_type SortType>
+			struct sort_order_t
 			{
-				static_assert(::sqlpp::wrong_t<insert_t>::value, "invalid argument for index_t");
-			};
-
-		template<typename... Assignments, std::size_t... Idx>
-			struct insert_t<std::tuple<Assignments...>, sqlpp::detail::index_sequence<Idx...>>
-			{
-				template<size_t> struct index {};
-
 				template<typename T>
-					void operator()(T& lhs)
-					{
-						using swallow = int[];
-						(void) swallow{(std::get<Idx>(_assignments)(lhs), 0)...};
-					}
+				bool operator()(const T& lhs, const T& rhs) const
+				{
+					if (SortType == sort_type::asc)
+						return _expression.less(lhs, rhs);
+					else
+						return _expression.greater(lhs, rhs);
+				}
 
-				std::tuple<Assignments...> _assignments;
+				Expression _expression;
+
 			};
 	}
+
+	template<typename Expression, sort_type SortType>
+		struct interpreter_t<::sqlpp::container::context_t, sort_order_t<Expression, SortType>>
+		{
+			using T = sort_order_t<Expression, SortType>;
+
+			static auto _(const T& t, ::sqlpp::container::context_t& context)
+				-> container::sort_order_t<decltype(interpret(t._expression, context)), SortType>
+			{
+				return { interpret(t._expression, context) };
+			}
+		};
 }
 
 #endif

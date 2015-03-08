@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2014, Roland Bock
  * All rights reserved.
@@ -23,8 +24,8 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_CONTAINER_INSERT_H
-#define SQLPP_CONTAINER_INSERT_H
+#ifndef SQLPP_CONTAINER_ORDER_BY_H
+#define SQLPP_CONTAINER_ORDER_BY_H
 
 #include <sqlpp11/detail/index_sequence.h>
 
@@ -32,25 +33,36 @@ namespace sqlpp
 {
 	namespace container
 	{
-		template<typename T, typename I>
-			struct insert_t
+		template<typename T>
+			struct order_by_data_t
 			{
-				static_assert(::sqlpp::wrong_t<insert_t>::value, "invalid argument for index_t");
+				static_assert(::sqlpp::wrong_t<order_by_data_t>::value, "invalid argument for order_by");
 			};
 
-		template<typename... Assignments, std::size_t... Idx>
-			struct insert_t<std::tuple<Assignments...>, sqlpp::detail::index_sequence<Idx...>>
+		template<typename... Expressions>
+			struct order_by_data_t<std::tuple<Expressions...>>
 			{
 				template<size_t> struct index {};
 
 				template<typename T>
-					void operator()(T& lhs)
+					bool operator()(const T& lhs, const T& rhs) const
 					{
-						using swallow = int[];
-						(void) swallow{(std::get<Idx>(_assignments)(lhs), 0)...};
+						return eval(lhs.get(), rhs.get(), index<0>{});
 					}
 
-				std::tuple<Assignments...> _assignments;
+				template<typename T, size_t i>
+					bool eval(const T& lhs, const T& rhs, const index<i>&) const
+					{
+						return std::get<i>(_expressions)(lhs, rhs) and eval(lhs, rhs, index<i+1>{});
+					}
+
+				template<typename T>
+					bool eval(const T& lhs, const T& rhs, const index<sizeof...(Expressions)>&) const
+					{
+						return true;
+					}
+
+				std::tuple<Expressions...> _expressions;
 			};
 	}
 }

@@ -49,11 +49,12 @@ namespace sqlpp
 
 			template<typename Connection,
 				typename Database,
+				typename With,
 				typename... Args
 					>
-					struct command_runner<Connection, statement_t<Database, select_t, Args...>>
+					struct command_runner<Connection, statement_t<Database, With, select_t, Args...>>
 				{
-					using Select = statement_t<Database,select_t, Args...>;
+					using Select = statement_t<Database,With, select_t, Args...>;
 
 					static auto run(Connection& db, const Select& select) -> decltype(db.select(select))
 					{
@@ -103,6 +104,10 @@ namespace sqlpp
 					_result_t result;
 
 					std::copy_if(_data.begin(), _data.end(), std::back_inserter(result), condition);
+
+					auto less = interpret(s.order_by._data, context);
+					std::sort(result.begin(), result.end(), less);
+
 					return result;
 				}
 
@@ -113,7 +118,7 @@ namespace sqlpp
 				{
 					_context_t context;
 					auto assign = interpret(i, context);
-					_row_t v = {};
+					_row_t v{};
 					assign(v);
 					_data.push_back(v);
 					return 0;

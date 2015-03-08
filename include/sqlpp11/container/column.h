@@ -38,18 +38,22 @@ namespace sqlpp
 				using _column_spec_t = typename Column::_spec_t;
 				using _cpp_value_type = typename value_type_of<Column>::_cpp_value_type;
 
-				column_t(const Column&)
-				{}
-				column_t(const column_t&) = default;
-				column_t(column_t&&) = default;
-				column_t& operator=(const column_t&) = default;
-				column_t& operator=(column_t&&) = default;
-				~column_t() = default;
-
 				template<typename T>
-				auto operator()(T& t) -> decltype(_column_spec_t::template accesssor_t<T>::get(t))&
+				auto operator()(T& t) const -> decltype(_column_spec_t::template accesssor_t<T>::get(t))&
 				{
 					return _column_spec_t::template accesssor_t<T>::get(t);
+				}
+
+				template<typename T>
+				bool less(const T& lhs, const T& rhs) const
+				{
+					return _column_spec_t::template accesssor_t<T>::get(lhs) < _column_spec_t::template accesssor_t<T>::get(rhs);
+				}
+
+				template<typename T>
+				bool greater(const T& lhs, const T& rhs) const
+				{
+					return _column_spec_t::template accesssor_t<T>::get(lhs) > _column_spec_t::template accesssor_t<T>::get(rhs);
 				}
 			};
 	}
@@ -61,7 +65,7 @@ namespace sqlpp
 
 			static ::sqlpp::container::column_t<T> _(const T& t, ::sqlpp::container::context_t& context)
 			{
-				return { t };
+				return { };
 			}
 		};
 }
